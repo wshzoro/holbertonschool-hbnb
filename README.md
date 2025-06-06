@@ -61,54 +61,67 @@ direction TB
     User "1" --> "*" Review : writes
     Place "1" o-- "*" Amenity : includes
 ```
- **Overview** 
 
-Entity Overview
+## Entity Overview
 
-User
+### User  
 Represents an individual using the platform.
 
-Attribute	Type	Description
-id	UUID	Unique identifier
-first_name	string	User's first name
-last_name	string	User's last name
-email	string	Email address (unique)
-password	string	Hashed password
-created_at	datetime	Record creation timestamp
-updated_at	datetime	Last update timestamp
-Key Methods: save(), register(), delete()
+| Attribute   | Type     | Description                |
+|-------------|----------|----------------------------|
+| id          | UUID     | Unique identifier           |
+| first_name  | string   | User's first name           |
+| last_name   | string   | User's last name            |
+| email       | string   | Email address (unique)      |
+| password    | string   | Hashed password             |
+| created_at  | datetime | Record creation timestamp   |
+| updated_at  | datetime | Last update timestamp       |
 
-Place
+**Key Methods:** `save()`, `register()`, `delete()`
+
+---
+
+### Place  
 Represents a property available for booking or rental.
 
-Attribute	Type	Description
-id	UUID	Unique identifier
-name	string	Property name
-description	string	Property description
-price	float	Price per night
-latitude	float	Geographic latitude
-longitude	float	Geographic longitude
-Key Methods: save(), create(), list(), delete()
+| Attribute   | Type     | Description                |
+|-------------|----------|----------------------------|
+| id          | UUID     | Unique identifier           |
+| name        | string   | Property name               |
+| description | string   | Property description        |
+| price       | float    | Price per night             |
+| latitude    | float    | Geographic latitude         |
+| longitude   | float    | Geographic longitude        |
 
-Review
+**Key Methods:** `save()`, `create()`, `list()`, `delete()`
+
+---
+
+### Review  
 Represents user feedback for a place.
 
-Attribute	Type	Description
-id	UUID	Unique identifier
-text	string	Review content
-rating	int	Numeric rating (e.g., 1-5)
-created_at	datetime	Timestamp of review creation
-updated_at	datetime	Timestamp of last update
-Key Methods: save(), delete()
+| Attribute   | Type     | Description                   |
+|-------------|----------|-------------------------------|
+| id          | UUID     | Unique identifier              |
+| text        | string   | Review content                 |
+| rating      | int      | Numeric rating (e.g., 1-5)    |
+| created_at  | datetime | Timestamp of review creation   |
+| updated_at  | datetime | Timestamp of last update       |
 
-Amenity
+**Key Methods:** `save()`, `delete()`
+
+---
+
+### Amenity  
 Represents a feature or facility provided at a place (e.g., Wi-Fi, pool).
 
-Attribute	Type	Description
-id	UUID	Unique identifier
-name	string	Name of the amenity
-description	string	Amenity details
-Key Methods: save(), list(), delete()
+| Attribute   | Type     | Description                  |
+|-------------|----------|------------------------------|
+| id          | UUID     | Unique identifier             |
+| name        | string   | Name of the amenity           |
+| description | string   | Amenity details               |
+
+**Key Methods:** `save()`, `list()`, `delete()`
 
 
 # Sequence Diagrams for API Calls 
