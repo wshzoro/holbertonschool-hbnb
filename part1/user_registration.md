@@ -27,6 +27,10 @@ sequenceDiagram
         UserLogic-->>APIService: raise ValidationError
         APIService-->>User: HTTP 400 Bad Request\n{ "error": "Missing required fields" }
 
+    else Invalid characters in name
+        UserLogic-->>APIService: raise InvalidNameError
+        APIService-->>User: HTTP 400 Bad Request\n{ "error": "First and last name must contain only letters" }
+
     else Success
         UserLogic->>UserRepository: save_user(user)
         UserRepository-->>UserLogic: user_saved
