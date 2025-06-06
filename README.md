@@ -256,3 +256,46 @@ sequenceDiagram
 | ReviewLogic      | Core logic: validation, duplication check, save           |
 | PlaceRepository  | Checks if the place to review exists                      |
 | ReviewRepository | Detects duplicate reviews and saves review data           |
+
+# Place Creation – Sequence Diagram
+
+This diagram show **Place creation flow** in the HBnB project. It describes how the system processes a user request to create a new place, covering frontend interaction, backend logic, and error handling.
+
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant APIService
+    participant PlaceLogic
+    participant PlaceRepository
+
+    User->>APIService: POST /places (place data)
+    APIService->>PlaceLogic: create_place(data)
+
+    alt Missing required fields
+        PlaceLogic-->>APIService: raise ValidationError
+        APIService-->>User: HTTP 400 Bad Request (Missing or invalid fields)
+
+    else Unauthorized access
+        PlaceLogic-->>APIService: raise AuthorizationError
+        APIService-->>User: HTTP 401 Unauthorized (Authentication required)
+
+    else Success
+        PlaceLogic->>PlaceRepository: save_place(place)
+        PlaceRepository-->>PlaceLogic: place_saved
+        PlaceLogic-->>APIService: return created_place
+        APIService-->>User: HTTP 201 Created
+    end
+```
+
+## Overview
+
+| Component         | Role                                                             |
+|------------------|------------------------------------------------------------------|
+| Frontend User     | Fills and submits the review form                                |
+| Display           | Shows UI messages or errors to the user                          |
+| APIService        | Entry point for handling `/reviews` POST requests                |
+| AuthService       | Verifies and validates the user's access token                   |
+| ReviewLogic       | Core logic: validation, duplication check, save                  |
+| PlaceRepository   | Checks if the place to review exists                             |
+| ReviewRepository  | Detects duplicate and saves review data                          |
