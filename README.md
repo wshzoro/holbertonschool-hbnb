@@ -175,10 +175,10 @@ sequenceDiagram
 
 | Participant        | Description                                                                 |
 | ------------------ | --------------------------------------------------------------------------- |
-| **User**           | The frontend user interacting with the registration form.                   |
-| **APIService**     | The backend API receiving and routing requests (e.g., Flask, FastAPI).      |
-| **UserLogic**      | The business logic validating data and applying registration rules.         |
-| **UserRepository** | Handles saving and retrieving user data from the database or storage layer. |
+| User           | The frontend user interacting with the registration form.                   |
+| APIService     | The backend API receiving and routing requests (e.g., Flask, FastAPI).      |
+| UserLogic      | The business logic validating data and applying registration rules.         |
+| UserRepository | Handles saving and retrieving user data from the database or storage layer. |
 
 ## Review Submission Flow – Sequence Diagram
 
@@ -257,7 +257,7 @@ sequenceDiagram
 | PlaceRepository  | Checks if the place to review exists                      |
 | ReviewRepository | Detects duplicate reviews and saves review data           |
 
-# Place Creation – Sequence Diagram
+## Place Creation – Sequence Diagram
 
 This diagram show **Place creation flow** in the HBnB project. It describes how the system processes a user request to create a new place, covering frontend interaction, backend logic, and error handling.
 
@@ -300,7 +300,7 @@ sequenceDiagram
 | PlaceRepository   | Checks if the place to review exists                             |
 | ReviewRepository  | Detects duplicate and saves review data                          |
 
-# List Places - Sequence Diagram 
+## List Places - Sequence Diagram 
 
 This digram describes the flow of retrieving a list of places through the HBnB API, including error handling.
 
