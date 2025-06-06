@@ -69,7 +69,7 @@ direction TB
     Place "1" o-- "*" Amenity : includes
 ```
 
-## Entity Overview
+## Overview
 
 ### User  
 Represents an individual using the platform.
