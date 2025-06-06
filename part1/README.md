@@ -1,5 +1,11 @@
 # Holbertonschool-HBNB
 
+# High-Level Package Diagram
+
+<img width="209" alt="Capture d’écran 2025-06-06 à 19 10 41" src="https://github.com/user-attachments/assets/ea647f1d-55dd-4b69-bae6-e7745eb1113f" />
+
+this diagram that illustrates the three-layer architecture of the HBnB application and the communication between these layers via the facade pattern
+
 # Business Logic Layer – Class Diagram 
 
 This document presents the **class diagram** for the Business Logic Layer of the **HBnB project**, modeled using **Mermaid.js** syntax. It defines the key entities, their attributes, methods, and the relationships between them, providing a clear abstraction of the core business logic.
