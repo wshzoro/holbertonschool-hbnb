@@ -338,3 +338,6 @@ end
 | APIService  | API entry point handling the request              |
 | PlaceLogic  | Business logic: validation, error handling, filtering |
 | PlaceRepository | Data access layer retrieving places from the database |
+
+## documentation 
+https://docs.google.com/document/d/1setrbs93z5_2LNSnfRO_MrhQFYcA0MgyF7hTyRmvdKw/edit?usp=sharing
