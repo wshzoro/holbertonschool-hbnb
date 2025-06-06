@@ -1,3 +1,5 @@
+# Sequence Diagram — User Registration
+
 ```mermaid
 sequenceDiagram
 
@@ -31,4 +33,3 @@ sequenceDiagram
         UserLogic-->>APIService: return created_user
         APIService-->>User: HTTP 201 Created\n{ id, email, first_name, last_name, is_admin, created_at }
     end
-    ```
