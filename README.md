@@ -63,74 +63,52 @@ direction TB
 ```
  **Overview** 
 
+Entity Overview
+
 User
-Represents a platform user.
+Represents an individual using the platform.
 
 Attribute	Type	Description
-id	UUID	Unique ID
-first_name	string	First name
-last_name	string	Last name
-email	string	Unique email address
+id	UUID	Unique identifier
+first_name	string	User's first name
+last_name	string	User's last name
+email	string	Email address (unique)
 password	string	Hashed password
-created_at	datetime	When user was created
-updated_at	datetime	Last update time
-Main methods: save(), register(), delete()
+created_at	datetime	Record creation timestamp
+updated_at	datetime	Last update timestamp
+Key Methods: save(), register(), delete()
 
 Place
-Represents a property to rent or book.
+Represents a property available for booking or rental.
 
 Attribute	Type	Description
-id	UUID	Unique ID
+id	UUID	Unique identifier
 name	string	Property name
-description	string	Description of place
+description	string	Property description
 price	float	Price per night
-latitude	float	Location latitude
-longitude	float	Location longitude
-Main methods: save(), create(), list(), delete()
+latitude	float	Geographic latitude
+longitude	float	Geographic longitude
+Key Methods: save(), create(), list(), delete()
 
 Review
-Represents feedback by users on places.
+Represents user feedback for a place.
 
 Attribute	Type	Description
-id	UUID	Unique ID
+id	UUID	Unique identifier
 text	string	Review content
-rating	int	Rating (e.g., 1 to 5)
-created_at	datetime	Creation date
-updated_at	datetime	Last update date
-Main methods: save(), delete()
+rating	int	Numeric rating (e.g., 1-5)
+created_at	datetime	Timestamp of review creation
+updated_at	datetime	Timestamp of last update
+Key Methods: save(), delete()
 
 Amenity
-Represents features offered at a place (Wi-Fi, pool, etc.).
+Represents a feature or facility provided at a place (e.g., Wi-Fi, pool).
 
 Attribute	Type	Description
-id	UUID	Unique ID
-name	string	Amenity name
-description	string	Details about amenity
-Main methods: save(), list(), delete()
-
-🔗 Relationships
-
-Relationship	Description
-User → Place	A user can own many places
-Place → Review	A place can have many reviews
-User → Review	A user can write many reviews
-Place o-- Amenity	A place includes many amenities
-📌 Notes
-
-All entities use UUID for unique IDs.
-Timestamp fields track creation and updates.
-Methods like save() and delete() manage persistence.
-Relationships use UML notation for clarity.
-🛠 How to View
-
-Use a Mermaid-compatible viewer (GitHub, VS Code extension).
-Paste the Mermaid code in your Markdown .md file.
-Or try online Mermaid editors.
-📁 Project Location
-
-This diagram corresponds to the Business Logic Layer
-Found in part1/ folder of the holbertonschool-hbnb repo.
-
+id	UUID	Unique identifier
+name	string	Name of the amenity
+description	string	Amenity details
+Key Methods: save(), list(), delete()
 
 
 # Sequence Diagrams for API Calls 
