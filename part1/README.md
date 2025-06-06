@@ -195,7 +195,6 @@ It includes what the user does on the frontend, how the API handles it, and how 
 ```mermaid
 sequenceDiagram
     participant User as Frontend User
-    participant Display as Display (UI Feedback)
     participant APIService as API (ReviewAPI)
     participant ReviewLogic as Business Logic (ReviewService)
     participant PlaceRepository as Persistence (PlaceRepository)
@@ -209,7 +208,6 @@ sequenceDiagram
     alt Invalid or expired token
         AuthService-->>APIService: raise AuthorizationError
         APIService-->>User: HTTP 401 Unauthorized { "error": "You must be logged in" }
-        APIService-->>Display: Display error: "Session expired. Please log in again."
 
     else Valid token
         AuthService-->>APIService: user_authenticated
@@ -220,7 +218,6 @@ sequenceDiagram
             PlaceRepository-->>ReviewLogic: raise NotFoundError
             ReviewLogic-->>APIService: raise NotFoundError
             APIService-->>User: HTTP 404 Not Found { "error": "Place not found" }
-            APIService-->>Display: Display error: "This place is no longer available."
 
         else Place exists
             PlaceRepository-->>ReviewLogic: place_ok
@@ -230,7 +227,6 @@ sequenceDiagram
                 ReviewRepository-->>ReviewLogic: raise DuplicateReviewError
                 ReviewLogic-->>APIService: raise DuplicateReviewError
                 APIService-->>User: HTTP 409 Conflict { "error": "Review already submitted for this place" }
-                APIService-->>Display: Display error: "You have already submitted a review for this place."
 
             else Not duplicate
                 ReviewRepository-->>ReviewLogic: OK
@@ -238,25 +234,23 @@ sequenceDiagram
                 alt Invalid input (e.g., empty comment or rating out of bounds)
                     ReviewLogic-->>APIService: raise ValidationError
                     APIService-->>User: HTTP 400 Bad Request { "error": "Invalid rating or comment" }
-                    APIService-->>Display: Display error: "Please enter a rating between 1 and 5 and a valid comment."
 
                 else Success
                     ReviewLogic->>ReviewRepository: save_review(review)
                     ReviewRepository-->>ReviewLogic: review_saved
                     ReviewLogic-->>APIService: return created_review
                     APIService-->>User: HTTP 201 Created { id, rating, comment, created_at, place_id, user_id }
-                    APIService-->>Display: Display message: "Thank you! Your review has been submitted."
                 end
             end
         end
     end
+
 ```
 ## Overview
 
 | Component        | Role                                                      |
 |------------------|-----------------------------------------------------------|
 | Frontend User    | Fills and submits the review form                         |
-| Display          | Shows UI messages or errors to the user                   |
 | APIService       | Entry point for handling `/reviews` POST requests         |
 | AuthService      | Verifies and validates the user's access token            |
 | ReviewLogic      | Core logic: validation, duplication check, save           |
