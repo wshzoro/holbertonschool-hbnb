@@ -1,4 +1,4 @@
-# holbertonschool-hbnb
+# Holbertonschool-HBNB
 ```mermaid
 classDiagram
 direction TB
@@ -99,3 +99,13 @@ sequenceDiagram
         UserLogic-->>APIService: return created_user
         APIService-->>User: HTTP 201 Created\n{ id, email, first_name, last_name, is_admin, created_at }
     end
+
+ Legend
+
+| Participant        | Description                                                                 |
+| ------------------ | --------------------------------------------------------------------------- |
+| **User**           | The frontend user interacting with the registration form.                   |
+| **APIService**     | The backend API receiving and routing requests (e.g., Flask, FastAPI).      |
+| **UserLogic**      | The business logic validating data and applying registration rules.         |
+| **UserRepository** | Handles saving and retrieving user data from the database or storage layer. |
+
