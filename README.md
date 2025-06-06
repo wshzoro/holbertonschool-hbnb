@@ -300,7 +300,7 @@ sequenceDiagram
 | PlaceRepository   | Checks if the place to review exists                             |
 | ReviewRepository  | Detects duplicate and saves review data                          |
 
-# Sequence Diagram - List Places
+# List Places - Sequence Diagram 
 
 This digram describes the flow of retrieving a list of places through the HBnB API, including error handling.
 
