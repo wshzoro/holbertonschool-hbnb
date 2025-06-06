@@ -56,13 +56,11 @@ direction TB
 
 # Sequence Diagrams for API Calls 
 
--User Registration Sequence Diagram-
+## User Registration Sequence Diagram
 
 This document describes the flow of the user registration process in the HBnB project using a **Mermaid.js sequence diagram**. It captures both frontend interactions and backend business logic processing, including validation, error handling, and data persistence.
 
 ---
-
-## 📊 Diagram
 
 ```mermaid
 sequenceDiagram
