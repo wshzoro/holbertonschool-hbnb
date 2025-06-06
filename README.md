@@ -299,3 +299,42 @@ sequenceDiagram
 | ReviewLogic       | Core logic: validation, duplication check, save                  |
 | PlaceRepository   | Checks if the place to review exists                             |
 | ReviewRepository  | Detects duplicate and saves review data                          |
+
+# Sequence Diagram - List Places
+
+This digram describes the flow of retrieving a list of places through the HBnB API, including error handling.
+
+
+```mermaid
+sequenceDiagram
+participant User
+participant APIService
+participant PlaceLogic
+participant PlaceRepository
+
+User->>APIService: GET /places?city=Paris
+APIService->>PlaceLogic: get_places(filters)
+
+alt Invalid filters
+    PlaceLogic-->>APIService: raise ValidationError
+    APIService-->>User: HTTP 400 Bad Request
+
+else Database error
+    PlaceLogic-->>APIService: raise DatabaseError
+    APIService-->>User: HTTP 500 Internal Server Error
+
+else Success
+    PlaceLogic->>PlaceRepository: fetch_places(filters)
+    PlaceRepository-->>PlaceLogic: list_of_places
+    PlaceLogic-->>APIService: return list_of_places
+    APIService-->>User: HTTP 200 OK (JSON)
+end
+```
+## Overview 
+
+| Component       | Role                                              |
+|-----------------|---------------------------------------------------|
+| User       | The user making the request                        |
+| APIService  | API entry point handling the request              |
+| PlaceLogic  | Business logic: validation, error handling, filtering |
+| PlaceRepository | Data access layer retrieving places from the database |
