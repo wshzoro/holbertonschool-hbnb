@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 sequenceDiagram
 participant User
 participant APIService
@@ -60,4 +59,3 @@ sequenceDiagram
         UserLogic-->>APIService: return created_user
         APIService-->>User: HTTP 201 Created\n{ id, email, first_name, last_name, is_admin, created_at }
     end
->>>>>>> 5c021f6fa06f1b52964e25ba1c4fb5a55a88cbbe
