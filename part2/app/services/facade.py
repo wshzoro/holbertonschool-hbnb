@@ -1,4 +1,6 @@
 from app.models.users import User
+from app.persistence.repository import repo
+from app.models.amenity import Amenity
 from app.persistence.repository import InMemoryRepository
 
 class HBnBFacade:
@@ -32,3 +34,30 @@ class HBnBFacade:
 
     def get_place(self, place_id):
         pass
+
+    def create_amenity(self, amenity_data):
+        if 'name' not in amenity_data or not amenity_data['name'].strip():
+            raise ValueError("Missing or invalid amenity name")
+        amenity = Amenity(name=amenity_data['name'])
+        repo.save(amenity)
+        return amenity.to_dict()
+
+    def get_all_amenities(self):
+        amenities = repo.all(Amenity)
+        return [a.to_dict() for a in amenities]
+
+    def get_amenity(self, amenity_id):
+        amenity = repo.get(Amenity, amenity_id)
+        if not amenity:
+            return None
+        return amenity.to_dict()
+
+    def update_amenity(self, amenity_id, amenity_data):
+        amenity = repo.get(Amenity, amenity_id)
+        if not amenity:
+            return None
+        if 'name' not in amenity_data or not amenity_data['name'].strip():
+            raise ValueError("Missing or invalid amenity name")
+        amenity.name = amenity_data['name']
+        repo.save(amenity)
+        return {"message": "Amenity updated successfully"}
