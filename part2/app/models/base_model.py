@@ -9,3 +9,9 @@ class BaseModels:
 
     def save(self):
         self.updated_at = datetime.now()
+
+    def update(self, data: dict):
+        for key, value in data.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+        self.save()

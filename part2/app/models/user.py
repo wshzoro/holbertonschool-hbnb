@@ -1,4 +1,4 @@
-from part2.app.models.base_model import BaseModels
+from .base_model import BaseModels
 
 class User(BaseModels):
     def __init__(self, first_name, last_name, email, password, is_admin=False):
