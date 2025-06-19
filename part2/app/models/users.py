@@ -1,9 +1,9 @@
 from part2.app.models.base_model import BaseModels
 
 class User(BaseModels):
-    def __init__(self, firs_name, last_name, email, password, is_admin=False):
+    def __init__(self, first_name, last_name, email, password, is_admin=False):
         super().__init__()
-        self.first_name = firs_name
+        self.first_name = first_name
         self.last_name = last_name
         self.email = email
         self.password = password
