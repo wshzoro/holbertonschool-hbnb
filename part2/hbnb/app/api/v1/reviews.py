@@ -5,7 +5,6 @@ from app.services.facade import HBnBFacade
 api = Namespace('reviews', description='Reviews related operations')
 facade = HBnBFacade()
 
-# Schéma de données pour la documentation Swagger
 review_model = api.model('Review', {
     'id': fields.String(readonly=True, description='The unique identifier of the review'),
     'text': fields.String(required=True, description='The content of the review'),
