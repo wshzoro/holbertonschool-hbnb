@@ -1,15 +1,17 @@
 from flask_restx import Namespace, Resource, fields
-from app.services import facade
+from app.services.facade import HBnBFacade
 import re
 
-api = Namespace('users')
+facade = HBnBFacade()
+
+api = Namespace('users', description='User operations')
 
 user_model = api.model('User', {
     'first_name': fields.String(required=True),
     'last_name': fields.String(required=True),
     'email': fields.String(required=True),
     'password': fields.String(required=True),
-    'place_list': fields.List(fields.String, required=True)
+    'place_list': fields.List(fields.String, required=False)
 })
 
 def is_valid_email(email):
@@ -51,8 +53,8 @@ class UserList(Resource):
     def get(self):
         """Retrieve all users"""
         users = facade.get_all_users()
-        if not users:
-            return {'error': 'No users found'}, 404
+        #if not users:
+         #   return {'error': 'No users found'}, 404
 
         return [{
             'id': u.id,

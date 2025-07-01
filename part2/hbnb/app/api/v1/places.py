@@ -22,7 +22,7 @@ place_model = api.model('Place', {
     'latitude': fields.Float(required=True),
     'longitude': fields.Float(required=True),
     'owner_id': fields.String(required=True),
-    'amenities': fields.List(fields.String, required=True)
+    'amenities': fields.List(fields.String, required=False),
 })
 
 @api.route('/')

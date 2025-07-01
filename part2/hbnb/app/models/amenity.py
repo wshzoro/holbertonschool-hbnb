@@ -6,5 +6,10 @@ class Amenity(BaseModels):
         self.id = id
         self.name = name
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name
+        }
     def delete(self):
         pass

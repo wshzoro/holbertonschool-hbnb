@@ -34,7 +34,7 @@ class HBnBFacade:
 
     def get_all_users(self):
         """Return all users."""
-        return self.user_repo.all()
+        return self.user_repo.get_all()
 
     def update_user(self, user_id, update_data):
         """Update an existing user with new data."""
@@ -45,99 +45,11 @@ class HBnBFacade:
             setattr(user, key, value)
         return user
 
-        """ PLACES """
-
-    def create_place(self, place_data):
-        """Create a new place after validating required fields and related entities."""
-        required_fields = ['title', 'price', 'latitude', 'longitude', 'owner_id', 'amenities']
-        for field in required_fields:
-            if field not in place_data or not place_data[field]:
-                raise ValueError(f"{field} is required")
-
-        owner = repo.get(User, place_data['owner_id'])
-        if not owner:
-            raise ValueError("Invalid owner_id")
-
-        for amenity_id in place_data['amenities']:
-            if not repo.get(Amenity, amenity_id):
-                raise ValueError(f"Amenity not found: {amenity_id}")
-
-        place = Place(**place_data)
-        repo.save(place)
-        return place.to_dict()
-
-    def get_place(self, place_id):
-        """Retrieve a place by ID."""
-        place = repo.get(Place, place_id)
-        if not place:
-            raise ValueError("Place not found")
-        return place
-
-    def get_all_places(self):
-        """Return all places."""
-        return repo.all(Place)
-
-    def update_place(self, place_id, update_data):
-        """Update an existing place with new data."""
-        place = repo.get(Place, place_id)
-        if not place:
-            raise ValueError("Place not found")
-
-        for key, value in update_data.items():
-            if hasattr(place, key):
-                setattr(place, key, value)
-
-        repo.save(place)
-        return place
-
-        """ AMENITIES """
-
-    def create_amenity(self, amenity_data):
-        """Create a new amenity if valid."""
-        if 'name' not in amenity_data or not amenity_data['name'].strip():
-            raise ValueError("Missing or invalid amenity name")
-        amenity = Amenity(name=amenity_data['name'])
-        repo.save(amenity)
-        return amenity.to_dict()
-
-    def get_all_amenities(self):
-        """Return all amenities."""
-        amenities = repo.all(Amenity)
-        return [a.to_dict() for a in amenities]
-
-    def get_amenity(self, amenity_id):
-        """Retrieve an amenity by ID."""
-        amenity = repo.get(Amenity, amenity_id)
-        if not amenity:
-            return None
-        return amenity.to_dict()
-
-    def update_amenity(self, amenity_id, amenity_data):
-        """Update an existing amenity's name."""
-        amenity = repo.get(Amenity, amenity_id)
-        if not amenity:
-            return None
-        if 'name' not in amenity_data or not amenity_data['name'].strip():
-            raise ValueError("Missing or invalid amenity name")
-        amenity.name = amenity_data['name']
-        repo.save(amenity)
-        return {"message": "Amenity updated successfully"}
-    
     """ REVIEWS """
 
     def create_review(self, review_data):
-        """Create a new review after validating required fields."""
-        required_fields = ['text', 'rating', 'user_id', 'place_id']
-        if not all(field in review_data for field in required_fields):
-            raise ValueError("Missing fields in review data")
-
-        review = Review(
-            id=review_data.get('id'),
-            text=review_data['text'],
-            rating=review_data['rating'],
-            user_id=review_data['user_id'],
-            place_id=review_data['place_id']
-        )
+        """Create a new review."""
+        review = Review(**review_data)
         self.review_repo.add(review)
         return review
 
@@ -147,21 +59,147 @@ class HBnBFacade:
 
     def get_all_reviews(self):
         """Return all reviews."""
-        return self.review_repo.all()
+        return self.review_repo.get_all()
+
+    def get_reviews_by_place(self, place_id):
+        """Return all reviews for a specific place."""
+        return [review for review in self.review_repo.get_all() if review.place_id == place_id]
+
+    def get_reviews_by_user(self, user_id):
+        """Return all reviews by a specific user."""
+        return [review for review in self.review_repo.get_all() if review.user_id == user_id]
+
+    def get_review(self, review_id):
+        """Retrieve a review by ID."""
+        return self.review_repo.get(review_id)
+
+    def delete_review(self, review_id):
+        """Delete a review by ID."""
+        review = self.review_repo.get(review_id)
+        if review:
+            self.review_repo.delete(review_id)
+            return True
+        return False
+
+    def create_place(self, place_data):
+        owner_id = place_data.get('owner_id')
+        owner = self.user_repo.get(owner_id)
+        if not owner:
+            raise ValueError("Invalid owner_id")
+
+        amenities = []
+        if 'amenities' in place_data:
+            for amenity_id in place_data['amenities']:
+                amenity = self.amenity_repo.get(amenity_id)
+                if amenity:
+                    amenities.append(amenity)
+
+        place = Place(
+            name=place_data['title'],
+            description=place_data.get('description', ''),
+            price=place_data['price'],
+            longitude=place_data['longitude'],
+            latitude=place_data['latitude'],
+            owner_id=owner_id,
+            amenities=amenities,
+            reviews=[]
+        )
+        self.place_repo.add(place)
+        return place.to_dict()
+
+    def get_place(self, place_id):
+        """Retrieve a place by ID."""
+        place = self.place_repo.get(place_id)
+        if not place:
+            raise ValueError("Place not found")
+        return place
+
+    def get_all_places(self):
+        """Return all places."""
+        return self.place_repo.get_all()
+
+    def update_place(self, place_id, update_data):
+        """Update an existing place with new data."""
+        place = self.place_repo.get(place_id)
+        if not place:
+            raise ValueError("Place not found")
+
+        for key, value in update_data.items():
+            if hasattr(place, key):
+                setattr(place, key, value)
+
+        self.place_repo.save(place)
+        return place
+
+    """ AMENITIES """
+
+    def create_amenity(self, amenity_data):
+        """Create a new amenity if valid."""
+        if 'name' not in amenity_data or not amenity_data['name'].strip():
+            raise ValueError("Missing or invalid amenity name")
+        amenity = Amenity(id=amenity_data['id'], name=amenity_data['name'])
+        self.amenity_repo.add(amenity)
+        return amenity
+
+    def get_all_amenities(self):
+        """Return all amenities."""
+        return self.amenity_repo.get_all()
+
+    def get_amenity(self, amenity_id):
+        """Retrieve an amenity by ID."""
+        return self.amenity_repo.get(amenity_id)
+
+    def update_amenity(self, amenity_id, amenity_data):
+        """Update an existing amenity with new data."""
+        amenity = self.get_amenity(amenity_id)
+        if not amenity:
+            return None
+        if 'name' not in amenity_data or not amenity_data['name'].strip():
+            raise ValueError("Missing or invalid amenity name")
+        amenity.name = amenity_data['name']
+        return amenity
+
+    """ REVIEWS """
+
+    def create_review(self, review_data):
+        """Create a new review."""
+        required_fields = ['place_id', 'user_id', 'rating', 'comment']
+        for field in required_fields:
+            if field not in review_data or not review_data[field]:
+                raise ValueError(f"{field} is required")
+
+        place = repo.get(Place, review_data['place_id'])
+        user = repo.get(User, review_data['user_id'])
+        
+        if not place:
+            raise ValueError("Invalid place_id")
+        if not user:
+            raise ValueError("Invalid user_id")
+
+        review = Review(**review_data)
+        self.review_repo.add(review)
+        return review
+
+    def get_review(self, review_id):
+        """Retrieve a review by ID."""
+        return self.review_repo.get(review_id)
+
+    def get_reviews_for_place(self, place_id):
+        """Get all reviews for a specific place."""
+        return self.review_repo.get_by_attribute('place_id', place_id)
 
     def update_review(self, review_id, update_data):
         """Update an existing review."""
         review = self.get_review(review_id)
         if not review:
             return None
+
         for key, value in update_data.items():
-            setattr(review, key, value)
+            if hasattr(review, key):
+                setattr(review, key, value)
+        
         return review
 
     def delete_review(self, review_id):
         """Delete a review by ID."""
-        review = self.get_review(review_id)
-        if review:
-            self.review_repo.delete(review_id)
-            return True
-        return False
+        return self.review_repo.delete(review_id)
