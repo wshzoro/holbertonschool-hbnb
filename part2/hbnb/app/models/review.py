@@ -1,5 +1,6 @@
 from app.models.base_model import BaseModels
 
+
 class Review(BaseModels):
     def __init__(self, id, text, rating, user_id, place_id):
         super().__init__()

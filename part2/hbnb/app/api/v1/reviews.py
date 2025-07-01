@@ -87,13 +87,12 @@ class ReviewResource(Resource):
         return review
 
     @api.doc('delete_review')
+    @api.response(204, 'Review deleted')
     def delete(self, review_id):
         """Delete a review by ID"""
-        review = facade.get_review(review_id)
-        if not review:
+        if not facade.delete_review(review_id):
             api.abort(404, f"Review {review_id} not found")
-        facade.review_repo.delete(review_id)
-        return {'message': f'Review {review_id} deleted'}, 200
+        return '', 204
     def get(self, review_id):
         """Fetch a review given its identifier"""
         review = facade.get_review(review_id)

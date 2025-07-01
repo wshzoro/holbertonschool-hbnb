@@ -1,2 +1,0 @@
-# Holbertonschool-HBNB
-
