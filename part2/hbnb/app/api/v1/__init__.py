@@ -19,4 +19,3 @@ api.add_namespace(reviews_ns, path='/reviews')
 
 # Exposer le Blueprint et l'API
 __all__ = ['api_bp', 'api']
-
