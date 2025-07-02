@@ -17,3 +17,4 @@ class Place(BaseModels):
     
     def delete(self):
         pass
+
