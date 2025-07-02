@@ -12,4 +12,3 @@ class Review(BaseModels):
 
     def delete(self):
         pass
-
