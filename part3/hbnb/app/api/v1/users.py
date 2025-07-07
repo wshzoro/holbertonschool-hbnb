@@ -1,6 +1,7 @@
 from flask_restx import Namespace, Resource, fields
 from app.services.facade import HBnBFacade
 import re
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 facade = HBnBFacade()
 
@@ -86,8 +87,14 @@ class UserResource(Resource):
     @api.response(200, 'User updated')
     @api.response(400, 'Invalid data')
     @api.response(404, 'User not found')
+    @api.response(403, 'Unauthorized action')
+    @jwt_required()
     def put(self, user_id):
         """Update user information"""
+        current_user_id = get_jwt_identity()
+        if current_user_id != user_id:
+            return {'error': 'Unauthorized action'}, 403
+
         data = api.payload
 
         if not data['first_name'].strip() or not data['last_name'].strip():
