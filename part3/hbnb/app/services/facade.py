@@ -20,9 +20,12 @@ class HBnBFacade:
 
     def create_user(self, user_data):
         """Create a new user and add it to the repository."""
+        if self.get_user_by_email(user_data['email']):
+            raise ValueError("Email already registered")
+
         password = user_data.pop('password')
         user = User(**user_data)
-        user.password_hash(password)
+        user.password = password
         self.user_repo.add(user)
         return user
 
@@ -43,8 +46,8 @@ class HBnBFacade:
         user = self.get_user(user_id)
         if not user:
             return None
-        if password in update_data:
-            user.password_hash(update_data['password'])
+        if 'password' in update_data:
+            user.password = update_data.pop('password')
     
         for key, value in update_data.items():
             setattr(user, key, value)
