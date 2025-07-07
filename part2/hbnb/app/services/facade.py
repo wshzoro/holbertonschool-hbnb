@@ -81,6 +81,8 @@ class HBnBFacade:
             return True
         return False
 
+        """PLACES"""
+
     def create_place(self, place_data):
         owner_id = place_data.get('owner_id')
         owner = self.user_repo.get(owner_id)
