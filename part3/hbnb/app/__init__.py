@@ -1,10 +1,16 @@
 from flask import Flask, redirect
 from app.api.v1 import api_bp
+from flask_bcrypt import Bcrypt
+
+bcrypt = Bcrypt()
 
 def create_app(config_class="config.DevelopmentConfig"):
     """Create app Flask """
     app = Flask(__name__)
     app.config.from_object(config_class)
+
+    """ Initialize Bcrypt """
+    bcrypt.init_app(app)
     
     # Save blueprint
     app.register_blueprint(api_bp)
