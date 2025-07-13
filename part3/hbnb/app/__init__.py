@@ -7,15 +7,7 @@ jwt = JWTManager()
 bcrypt = Bcrypt()
 
 def create_app(config_class="config.DevelopmentConfig"):
-    """
-    Create and configure the Flask application.
-
-    Args:
-        config_class (str): The configuration class to use.
-
-    Returns:
-        Flask: The configured Flask application.
-    """
+    """Create app Flask """
     app = Flask(__name__)
     app.config.from_object(config_class)
     
