@@ -20,7 +20,6 @@ class Repository(ABC):
     def get_by_attribute(self, attr_name, attr_value): pass
 
 
-# Nouvelle version SQLAlchemy
 class SQLAlchemyRepository(Repository):
     def __init__(self, session, model_class):
         self.session = session

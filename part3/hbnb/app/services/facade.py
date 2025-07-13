@@ -7,6 +7,9 @@ from app.models.review import Review
 from app.models.amenity import Amenity
 from app.persistence.repository import SQLAlchemyRepository
 from app.persistence.user_repository import UserRepository
+from app.persistence.place_repository import PlaceRepository
+from app.persistence.review_repository import ReviewRepository
+from app.persistence.amenity_repository import AmenityRepository
 
 class HBnBFacade:
     def __init__(self):
@@ -15,9 +18,9 @@ class HBnBFacade:
         session = Session()
 
         self.user_repo = UserRepository(session)
-        self.place_repo = SQLAlchemyRepository(session, Place)
-        self.review_repo = SQLAlchemyRepository(session, Review)
-        self.amenity_repo = SQLAlchemyRepository(session, Amenity)
+        self.place_repo = PlaceRepository(session)
+        self.review_repo = ReviewRepository(session)
+        self.amenity_repo = AmenityRepository(session)
         
     """ USERS """
 
