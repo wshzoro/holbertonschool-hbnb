@@ -1,21 +1,23 @@
-import uuid
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
 from app.models.user import User
 from app.models.place import Place
 from app.models.review import Review
 from app.models.amenity import Amenity
-from app.persistence.repository import repo, InMemoryRepository
-
+from app.persistence.repository import SQLAlchemyRepository
 
 class HBnBFacade:
-    """Main facade to manage business logic for users, places, reviews, and amenities."""
-
     def __init__(self):
-        # In-memory repositories (can be swapped with persistent ones)
-        self.user_repo = InMemoryRepository()
-        self.place_repo = InMemoryRepository()
-        self.review_repo = InMemoryRepository()
-        self.amenity_repo = InMemoryRepository()
+        engine = create_engine("sqlite:///hbnb.db")
+        Session = sessionmaker(bind=engine)
+        session = Session()
 
+        self.user_repo = SQLAlchemyRepository(session, User)
+        self.place_repo = SQLAlchemyRepository(session, Place)
+        self.review_repo = SQLAlchemyRepository(session, Review)
+        self.amenity_repo = SQLAlchemyRepository(session, Amenity)
+        
     """ USERS """
 
     def create_user(self, user_data):

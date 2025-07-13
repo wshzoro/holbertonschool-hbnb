@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 
-
 class Repository(ABC):
     @abstractmethod
     def add(self, obj): pass
@@ -21,29 +20,36 @@ class Repository(ABC):
     def get_by_attribute(self, attr_name, attr_value): pass
 
 
-class InMemoryRepository(Repository):
-    def __init__(self):
-        self._storage = {}
+# Nouvelle version SQLAlchemy
+class SQLAlchemyRepository(Repository):
+    def __init__(self, session, model_class):
+        self.session = session
+        self.model_class = model_class
 
     def add(self, obj):
-        self._storage[obj.id] = obj
+        self.session.add(obj)
+        self.session.commit()
 
     def get(self, obj_id):
-        return self._storage.get(obj_id)
+        return self.session.get(self.model_class, obj_id)
 
     def get_all(self):
-        return list(self._storage.values())
+        return self.session.query(self.model_class).all()
 
     def update(self, obj_id, data):
         obj = self.get(obj_id)
         if obj:
-            obj.update(data)
+            for key, value in data.items():
+                setattr(obj, key, value)
+            self.session.commit()
 
     def delete(self, obj_id):
-        if obj_id in self._storage:
-            del self._storage[obj_id]
+        obj = self.get(obj_id)
+        if obj:
+            self.session.delete(obj)
+            self.session.commit()
 
     def get_by_attribute(self, attr_name, attr_value):
-        return next((obj for obj in self._storage.values() if getattr(obj, attr_name) == attr_value), None)
-
-repo = InMemoryRepository()
+        return self.session.query(self.model_class).filter(
+            getattr(self.model_class, attr_name) == attr_value
+        ).first()
