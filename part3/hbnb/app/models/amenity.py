@@ -1,15 +1,9 @@
-from app.models.base_model import BaseModels
+from app import db
+import uuid
 
-class Amenity(BaseModels):
-    def __init__(self, id, name):
-        super().__init__()
-        self.id = id
-        self.name = name
+from app.models.base_model import BaseModel
 
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'name': self.name
-        }
-    def delete(self):
-        pass
+class Amenity(BaseModel):
+    __tablename__ = 'amenities'
+    name = db.Column(db.String(128), nullable=False)
+    name = db.Column(db.String(128), nullable=False)

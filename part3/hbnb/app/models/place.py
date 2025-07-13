@@ -1,20 +1,13 @@
-from app.models.base_model import BaseModels
+from app import db
+import uuid
 
-class Place(BaseModels):
-    def __init__(self, name, description, price, longitude, latitude, owner_id, amenities, reviews):
-        super().__init__()
-        self.name = name
-        self.description = description
-        self.price = price
-        self.longitude = longitude
-        self.latitude = latitude
-        self.owner_id = owner_id
-        self.reviews = reviews
-        self.amenities = amenities
+from app.models.base_model import BaseModel
+from app import db
 
-    def create(self):
-        self.save()
-    
-    def delete(self):
-        pass
-
+class Place(BaseModel):
+    __tablename__ = 'places'
+    name = db.Column(db.String(128), nullable=False)
+    description = db.Column(db.Text)
+    city = db.Column(db.String(128))
+    price = db.Column(db.Float)
+    owner_id = db.Column(db.String(36))

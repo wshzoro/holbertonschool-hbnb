@@ -1,14 +1,16 @@
-from app.models.base_model import BaseModels
+from app import db
+import uuid
+from app.models.base_model import BaseModel
 
+class Review(BaseModel):
+    __tablename__ = 'reviews'
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    text = db.Column(db.Text, nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.String(36))
+    place_id = db.Column(db.String(36))  
 
-class Review(BaseModels):
-    def __init__(self, id, text, rating, user_id, place_id):
-        super().__init__()
-        self.id = id
+    def __init__(self, text, rating, user_id, place_id):
         self.text = text
         self.rating = rating
-        self.user_id = user_id
         self.place_id = place_id
-
-    def delete(self):
-        pass

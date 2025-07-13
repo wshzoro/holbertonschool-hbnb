@@ -1,21 +1,27 @@
-import uuid
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
 from app.models.user import User
 from app.models.place import Place
 from app.models.review import Review
 from app.models.amenity import Amenity
-from app.persistence.repository import repo, InMemoryRepository
-
+from app.persistence.repository import SQLAlchemyRepository
+from app.persistence.user_repository import UserRepository
+from app.persistence.place_repository import PlaceRepository
+from app.persistence.review_repository import ReviewRepository
+from app.persistence.amenity_repository import AmenityRepository
 
 class HBnBFacade:
-    """Main facade to manage business logic for users, places, reviews, and amenities."""
-
     def __init__(self):
-        # In-memory repositories (can be swapped with persistent ones)
-        self.user_repo = InMemoryRepository()
-        self.place_repo = InMemoryRepository()
-        self.review_repo = InMemoryRepository()
-        self.amenity_repo = InMemoryRepository()
+        engine = create_engine("sqlite:///hbnb.db")
+        Session = sessionmaker(bind=engine)
+        session = Session()
 
+        self.user_repo = UserRepository(session)
+        self.place_repo = PlaceRepository(session)
+        self.review_repo = ReviewRepository(session)
+        self.amenity_repo = AmenityRepository(session)
+        
     """ USERS """
 
     def create_user(self, user_data):
@@ -35,7 +41,7 @@ class HBnBFacade:
 
     def get_user_by_email(self, email):
         """Retrieve a user by email."""
-        return self.user_repo.get_by_attribute('email', email)
+        return self.user_repo.get_by_email(email)
 
     def get_all_users(self):
         """Return all users."""
