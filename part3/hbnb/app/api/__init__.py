@@ -30,10 +30,19 @@ def configure_jwt(jwt_manager: JWTManager):
     """Configure JWT callbacks."""
     @jwt_manager.user_identity_loader
     def user_identity_lookup(user):
-        return user.id
+        if isinstance(user, str):
+            return user
+        if isinstance(user, dict):
+            return user['id']
+        return str(user.id)
 
     @jwt_manager.user_lookup_loader
     def user_lookup_callback(_jwt_header, jwt_data):
         identity = jwt_data["sub"]
         return facade.get_user(identity)
+
+    @jwt_manager.additional_claims_loader
+    def add_claims_to_access_token(identity):
+        user = facade.get_user(identity)
+        return {'is_admin': user.is_admin if user else False}
 

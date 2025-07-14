@@ -90,22 +90,21 @@ class UserList(Resource):
 
 @api.route('/<user_id>')
 class UserResource(Resource):
-    @api.response(200, 'User retrieved')
-    @api.response(404, 'User not found')
+    @api.response(200, 'Utilisateur récupéré')
+    @api.response(404, 'Utilisateur non trouvé')
+    @jwt_required()
     def get(self, user_id):
         """Retrieve a user by ID"""
         user = facade.get_user(user_id)
         if not user:
-            return {'error': 'User not found'}, 404
-
-        # Ne pas inclure le mot de passe dans la réponse
+            return {'error': 'Utilisateur non trouvé'}, 404
+            
         return {
             'id': user.id,
             'first_name': user.first_name,
             'last_name': user.last_name,
             'email': user.email,
-            'is_admin': user.is_admin,
-            'place_list': [place.id for place in user.places]
+            'is_admin': user.is_admin
         }, 200
 
     @api.expect(user_model)
