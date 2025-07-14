@@ -1,12 +1,43 @@
 from app.models.review import Review
+from app.persistence.repository import SQLAlchemyRepository
 from app import db
-from sqlalchemy.orm import Session
-from .repository import SQLAlchemyRepository
+from sqlalchemy.exc import SQLAlchemyError
 
 class ReviewRepository(SQLAlchemyRepository):
-    def __init__(self, session: Session = None):
-        if session is None:
-            session = db.session
-        super().__init__(session, Review)
+    def __init__(self):
+        super().__init__(Review)
 
-    # Ajoute ici des méthodes spécifiques à Review si besoin
+    def get_reviews_by_rating(self, min_rating=1, max_rating=5):
+        """Rechercher les avis par note"""
+        return self.model.query.filter(
+            Review.rating.between(min_rating, max_rating)
+        ).all()
+
+    def get_reviews_by_text(self, text):
+        """Rechercher les avis par texte"""
+        return self.model.query.filter(
+            Review.text.ilike(f'%{text}%')
+        ).all()
+
+    def get_average_rating_for_place(self, place_id):
+        """Calculer la note moyenne pour un lieu"""
+        result = self.model.query.with_entities(
+            db.func.avg(Review.rating).label('average_rating')
+        ).filter_by(place_id=place_id).first()
+        return result.average_rating if result else None
+
+    def update_rating(self, review_id, new_rating):
+        """Mettre à jour la note d'un avis"""
+        if not 1 <= new_rating <= 5:
+            raise ValueError("La note doit être entre 1 et 5")
+        
+        try:
+            review = self.get(review_id)
+            if review:
+                review.rating = new_rating
+                db.session.commit()
+                return True
+            return False
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            raise
