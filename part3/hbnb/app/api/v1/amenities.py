@@ -1,9 +1,9 @@
 from flask_restx import Namespace, Resource, fields
 from app.services.facade import HBnBFacade
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 import uuid
 
-from part3.hbnb.app.models import amenity
+from app.models import amenity
 
 api = Namespace('amenities', description='Amenity operations')
 facade = HBnBFacade()
@@ -24,21 +24,42 @@ class AmenityList(Resource):
     @api.doc('create_amenity')
     @api.expect(amenity_model, validate=True)
     @api.marshal_with(amenity_response, code=201)
-    @api.response(400, 'Invalid input data')
+    @api.response(400, 'Données invalides')
+    @api.response(403, 'Administrateur requis')
+    @api.response(409, 'Nom déjà utilisé')
     @jwt_required()
     def post(self):
         """Register a new amenity"""
+        claims = get_jwt()
+        if not claims.get('is_admin'):
+            return {'error': 'Administrateur requis'}, 403
+
         data = api.payload
         name = data['name'].strip()
+
+        # Validation du nom
         if not name:
-            return {'error': 'Missing or invalid amenity name'}, 400
+            return {'error': 'Le nom est requis'}, 400
+        
+        if not isinstance(name, str):
+            return {'error': 'Le nom doit être une chaîne de caractères'}, 400
+
+        # Vérifier si le nom existe déjà
+        existing_amenity = facade.get_amenity_by_name(name)
+        if existing_amenity:
+            return {'error': 'Nom déjà utilisé'}, 409
+
         try:
             amenity_id = str(uuid.uuid4())
             amenity_data = {'id': amenity_id, 'name': name}
             amenity = facade.create_amenity(amenity_data)
+            if not amenity:
+                return {'error': 'Échec de la création de l\'équipement'}, 500
+            
             return amenity.to_dict(), 201
+
         except Exception as e:
-            return {'error': str(e)}, 400
+            return {'error': 'Erreur interne du serveur'}, 500
 
     @api.doc('get_all_amenities')
     @api.marshal_list_with(amenity_response)
@@ -63,31 +84,58 @@ class AmenityResource(Resource):
     @api.doc('update_amenity')
     @api.expect(amenity_model, validate=True)
     @api.marshal_with(amenity_response)
-    @api.response(404, 'Amenity not found')
-    @api.response(400, 'Invalid input data')
+    @api.response(404, 'Équipement non trouvé')
+    @api.response(400, 'Données invalides')
+    @api.response(403, 'Administrateur requis')
+    @api.response(409, 'Nom déjà utilisé')
     @jwt_required()
     def put(self, amenity_id):
         """Update an amenity's information"""
+        claims = get_jwt()
+        if not claims.get('is_admin'):
+            return {'error': 'Administrateur requis'}, 403
+
         data = api.payload
         name = data['name'].strip()
+
+        # Validation du nom
         if not name:
-            return {'error': 'Missing or invalid amenity name'}, 400
+            return {'error': 'Le nom est requis'}, 400
+        
+        if not isinstance(name, str):
+            return {'error': 'Le nom doit être une chaîne de caractères'}, 400
+
         try:
+            # Vérifier si le nom existe déjà (en excluant l'équipement actuel)
+            existing_amenity = facade.get_amenity_by_name(name)
+            if existing_amenity and str(existing_amenity.id) != amenity_id:
+                return {'error': 'Nom déjà utilisé'}, 409
+
             updated = facade.update_amenity(amenity_id, {'name': name})
             if not updated:
-                return {'error': 'Amenity not found'}, 404
+                return {'error': 'Équipement non trouvé'}, 404
+            
             return updated.to_dict(), 200
-        except ValueError as e:
-            return {'error': str(e)}, 400
+
+        except Exception as e:
+            return {'error': 'Erreur interne du serveur'}, 500
 
     @api.doc('delete_amenity')
-    @api.response(204, 'Amenity deleted')
-    @api.response(404, 'Amenity not found')
+    @api.response(204, 'Équipement supprimé')
+    @api.response(404, 'Équipement non trouvé')
+    @api.response(403, 'Administrateur requis')
     @jwt_required()
     def delete(self, amenity_id):
         """Delete an amenity by ID"""
-        success = facade.delete_amenity(amenity_id)
-        if not success:
-            return {'error': 'Amenity not found'}, 404
-        return '', 204
+        claims = get_jwt()
+        if not claims.get('is_admin'):
+            return {'error': 'Administrateur requis'}, 403
+
+        try:
+            success = facade.delete_amenity(amenity_id)
+            if not success:
+                return {'error': 'Équipement non trouvé'}, 404
+            return '', 204
+        except Exception as e:
+            return {'error': 'Erreur interne du serveur'}, 500
 

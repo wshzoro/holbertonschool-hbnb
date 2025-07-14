@@ -1,7 +1,7 @@
 from flask_restx import Namespace, Resource, fields
 from app.services.facade import HBnBFacade
 import re
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 
 facade = HBnBFacade()
 
@@ -11,8 +11,12 @@ user_model = api.model('User', {
     'first_name': fields.String(required=True),
     'last_name': fields.String(required=True),
     'email': fields.String(required=True),
-    'password': fields.String(required=True),
     'place_list': fields.List(fields.String, required=False)
+})
+
+# Modèle pour la création d'utilisateur avec mot de passe
+user_create_model = api.clone('UserCreate', user_model, {
+    'password': fields.String(required=True)
 })
 
 def is_valid_email(email):
@@ -20,34 +24,53 @@ def is_valid_email(email):
 
 @api.route('/')
 class UserList(Resource):
-    @api.expect(user_model, validate=True)
-    @api.response(201, 'User successfully created')
-    @api.response(400, 'Invalid input data or email already registered')
+    @api.expect(user_create_model, validate=True)
+    @api.response(201, 'Utilisateur créé')
+    @api.response(400, 'Données invalides')
+    @api.response(403, 'Administrateur requis')
+    @api.response(409, 'Email déjà enregistré')
+    @jwt_required()
     def post(self):
         """Create a new user"""
+        claims = get_jwt()
+        if not claims.get('is_admin'):
+            return {'error': 'Administrateur requis'}, 403
+
         data = api.payload
 
-        if not data['first_name'].strip() or not data['last_name'].strip():
-            return {'error': 'First name and last name are required'}, 400
+        # Validation des données
+        if not data.get('first_name') or not data.get('last_name'):
+            return {'error': 'Le prénom et le nom sont requis'}, 400
+        
+        if not isinstance(data.get('first_name'), str) or not isinstance(data.get('last_name'), str):
+            return {'error': 'Le prénom et le nom doivent être des chaînes de caractères'}, 400
 
-        if not is_valid_email(data['email']):
-            return {'error': 'Invalid email format'}, 400
+        if not data.get('email') or not is_valid_email(data['email']):
+            return {'error': 'Format d\'email invalide'}, 400
 
-        if len(data['password']) < 6:
-            return {'error': 'Password must be at least 6 characters'}, 400
+        if not data.get('password') or len(data['password']) < 6:
+            return {'error': 'Le mot de passe doit contenir au moins 6 caractères'}, 400
 
+        # Vérification de l'unicité de l'email
         if facade.get_user_by_email(data['email']):
-            return {'error': 'Email already registered'}, 400
+            return {'error': 'Email déjà enregistré'}, 409
 
-        user = facade.create_user(data)
+        # Création de l'utilisateur
+        try:
+            user = facade.create_user(data)
+            if not user:
+                return {'error': 'Échec de la création de l\'utilisateur'}, 500
 
-        return {
-            'id': user.id,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'email': user.email,
-            'place_list': user.place_list
-        }, 201
+            return {
+                'id': str(user.id),
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'email': user.email,
+                'message': 'Utilisateur créé'
+            }, 201
+
+        except Exception as e:
+            return {'error': 'Erreur interne du serveur'}, 500
 
     @api.response(200, 'Users retrieved')
     @api.response(404, 'No users found')
@@ -75,45 +98,60 @@ class UserResource(Resource):
         if not user:
             return {'error': 'User not found'}, 404
 
+        # Ne pas inclure le mot de passe dans la réponse
         return {
             'id': user.id,
             'first_name': user.first_name,
             'last_name': user.last_name,
             'email': user.email,
-            'place_list': user.place_list
+            'is_admin': user.is_admin,
+            'place_list': [place.id for place in user.places]
         }, 200
 
-    @api.expect(user_model, validate=True)
-    @api.response(200, 'User updated')
-    @api.response(400, 'Invalid data')
-    @api.response(404, 'User not found')
-    @api.response(403, 'Unauthorized action')
+    @api.expect(user_model)
+    @api.response(200, 'Utilisateur mis à jour')
+    @api.response(400, 'Données invalides')
+    @api.response(403, 'Action non autorisée')
+    @api.response(404, 'Utilisateur non trouvé')
+    @api.response(409, 'Email déjà enregistré')
     @jwt_required()
     def put(self, user_id):
         """Update user information"""
+        claims = get_jwt()
         current_user_id = get_jwt_identity()
-        if current_user_id != user_id:
-            return {'error': 'Unauthorized action'}, 403
 
-        data = api.payload
+        try:
+            # Les administrateurs peuvent modifier tous les utilisateurs
+            if not claims.get('is_admin') and current_user_id != user_id:
+                return {'error': 'Action non autorisée'}, 403
 
-        if not data['first_name'].strip() or not data['last_name'].strip():
-            return {'error': 'First name and last name are required'}, 400
+            data = api.payload
+            
+            # Valider les données
+            if not data.get('first_name') or not data.get('last_name'):
+                return {'error': 'Le prénom et le nom sont requis'}, 400
+            
+            if not isinstance(data.get('first_name'), str) or not isinstance(data.get('last_name'), str):
+                return {'error': 'Le prénom et le nom doivent être des chaînes de caractères'}, 400
 
-        if not is_valid_email(data['email']):
-            return {'error': 'Invalid email format'}, 400
+            # Vérifier l'unicité de l'email si il est fourni
+            if data.get('email'):
+                existing_user = facade.get_user_by_email(data['email'])
+                if existing_user and str(existing_user.id) != user_id:
+                    return {'error': 'Email déjà enregistré'}, 409
 
-        if len(data['password']) < 6:
-            return {'error': 'Password must be at least 6 characters'}, 400
+            # Mettre à jour l'utilisateur
+            user = facade.update_user(user_id, data)
+            if not user:
+                return {'error': 'Utilisateur non trouvé'}, 404
 
-        user = facade.update_user(user_id, data)
-        if not user:
-            return {'error': 'User not found'}, 404
+            return {
+                'id': str(user.id),
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'email': user.email,
+                'place_list': user.place_list
+            }, 200
 
-        return {
-            'id': user.id,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'email': user.email,
-            'place_list': user.place_list
-        }, 200
+        except Exception as e:
+            return {'error': 'Erreur interne du serveur'}, 500
