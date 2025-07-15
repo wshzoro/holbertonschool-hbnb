@@ -5,12 +5,12 @@ from sqlalchemy.exc import SQLAlchemyError
 
 class PlaceRepository(SQLAlchemyRepository):
     def __init__(self):
-        super().__init__(Place)
+        super().__init__(db.session, Place)
 
     def get_places_by_location(self, latitude, longitude, radius=10):
         """Rechercher les lieux dans un rayon donné"""
         # Formule haversine pour calculer la distance
-        query = self.model.query.filter(
+        query = self.session.query(Place).filter(
             db.func.acos(
                 db.func.sin(db.func.radians(latitude)) * 
                 db.func.sin(db.func.radians(Place.latitude)) + 
@@ -23,13 +23,13 @@ class PlaceRepository(SQLAlchemyRepository):
 
     def get_places_by_price_range(self, min_price, max_price):
         """Rechercher les lieux dans une fourchette de prix"""
-        return self.model.query.filter(
+        return self.session.query(Place).filter(
             Place.price.between(min_price, max_price)
         ).all()
 
     def get_places_by_title(self, title):
         """Rechercher les lieux par titre partiel"""
-        return self.model.query.filter(
+        return self.session.query(Place).filter(
             Place.title.ilike(f'%{title}%')
         ).all()
 
@@ -40,9 +40,9 @@ class PlaceRepository(SQLAlchemyRepository):
             if place:
                 place.latitude = latitude
                 place.longitude = longitude
-                db.session.commit()
+                self.session.commit()
                 return True
             return False
         except SQLAlchemyError as e:
-            db.session.rollback()
+            self.session.rollback()
             raise

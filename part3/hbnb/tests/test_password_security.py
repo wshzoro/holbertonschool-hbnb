@@ -12,7 +12,8 @@ class TestPasswordSecurity(unittest.TestCase):
     def setUp(self):
         """Set up test client and sample data."""
         # Configuration de l'application de test
-        self.app = create_app('testing')
+        from config import config
+        self.app = create_app(config['testing'])
         self.client = self.app.test_client()
         self.app_context = self.app.app_context()
         self.app_context.push()
@@ -87,7 +88,7 @@ class TestPasswordSecurity(unittest.TestCase):
 
         # Vérifier la réponse
         self.assertEqual(response.status_code, 201)
-        data = response.json
+        data = response.get_json()  # Use get_json() instead of response.json
         
         # Vérifier que le mot de passe n'est pas retourné
         self.assertNotIn('password', data)

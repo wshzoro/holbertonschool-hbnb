@@ -14,8 +14,8 @@ class Review(BaseModel):
     place_id = db.Column(db.String(36), db.ForeignKey('places.id'), nullable=False)
 
     # Relations
-    user = db.relationship('User', backref=db.backref('reviews', lazy=True))
-    place = db.relationship('Place', backref=db.backref('reviews', lazy=True))
+    user = db.relationship('User', backref=db.backref('user_reviews', lazy=True, overlaps='reviews'))
+    place = db.relationship('Place', backref=db.backref('place_reviews', lazy=True, overlaps='reviews'))
 
     def __init__(self, text, rating, user_id, place_id):
         super().__init__()

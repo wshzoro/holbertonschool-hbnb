@@ -85,7 +85,8 @@ class UserList(Resource):
             'first_name': u.first_name,
             'last_name': u.last_name,
             'email': u.email,
-            'place_list': u.place_list
+            'places': u.places,
+            'reviews': u.reviews
         } for u in users], 200
 
 @api.route('/<user_id>')

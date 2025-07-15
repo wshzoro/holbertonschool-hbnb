@@ -5,23 +5,23 @@ from sqlalchemy.exc import SQLAlchemyError
 
 class AmenityRepository(SQLAlchemyRepository):
     def __init__(self):
-        super().__init__(Amenity)
+        super().__init__(db.session, Amenity)
 
     def get_amenity_by_name(self, name):
         """Rechercher un équipement par nom"""
-        return self.model.query.filter(
+        return self.session.query(Amenity).filter(
             Amenity.name.ilike(f'%{name}%')
         ).first()
 
     def get_amenities_by_place(self, place_id):
         """Rechercher les équipements d'un lieu"""
-        return self.model.query.filter(
+        return self.session.query(Amenity).filter(
             Amenity.places.any(id=place_id)
         ).all()
 
     def get_places_with_amenity(self, amenity_id):
         """Rechercher les lieux avec un équipement"""
-        return self.model.query.filter(
+        return self.session.query(Amenity).filter(
             Amenity.places.any(id=amenity_id)
         ).all()
 
@@ -34,9 +34,9 @@ class AmenityRepository(SQLAlchemyRepository):
             amenity = self.get(amenity_id)
             if amenity:
                 amenity.name = new_name
-                db.session.commit()
+                self.session.commit()
                 return True
             return False
         except SQLAlchemyError as e:
-            db.session.rollback()
+            self.session.rollback()
             raise

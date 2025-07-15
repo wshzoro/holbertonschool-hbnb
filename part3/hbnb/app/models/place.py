@@ -18,12 +18,12 @@ class Place(BaseModel):
     owner_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
 
     # Relations
-    owner = db.relationship('User', backref=db.backref('places', lazy=True))
-    reviews = db.relationship('Review', backref='place', lazy=True)
+    owner = db.relationship('User', backref=db.backref('user_places', lazy=True))
+    reviews = db.relationship('Review', backref=db.backref('place_reviews', lazy=True))
     amenities = db.relationship(
         'Amenity',
         secondary=place_amenity,
-        backref=db.backref('places', lazy=True),
+        backref=db.backref('place_amenities', lazy=True),
         lazy=True
     )
 

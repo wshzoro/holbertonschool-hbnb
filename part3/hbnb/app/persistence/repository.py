@@ -23,23 +23,24 @@ class Repository(ABC):
 
 
 class SQLAlchemyRepository(Repository):
-    def __init__(self, model_class):
+    def __init__(self, session, model_class):
+        self.session = session
         self.model_class = model_class
 
     def add(self, obj):
         try:
-            db.session.add(obj)
-            db.session.commit()
+            self.session.add(obj)
+            self.session.commit()
             return obj
         except SQLAlchemyError as e:
-            db.session.rollback()
+            self.session.rollback()
             raise
 
     def get(self, obj_id):
-        return self.model_class.query.get(obj_id)
+        return self.session.query(self.model_class).get(obj_id)
 
     def get_all(self):
-        return self.model_class.query.all()
+        return self.session.query(self.model_class).all()
 
     def update(self, obj_id, data):
         obj = self.get(obj_id)
@@ -47,10 +48,10 @@ class SQLAlchemyRepository(Repository):
             try:
                 for key, value in data.items():
                     setattr(obj, key, value)
-                db.session.commit()
+                self.session.commit()
                 return obj
             except SQLAlchemyError as e:
-                db.session.rollback()
+                self.session.rollback()
                 raise
         return None
 
@@ -58,18 +59,13 @@ class SQLAlchemyRepository(Repository):
         obj = self.get(obj_id)
         if obj:
             try:
-                db.session.delete(obj)
-                db.session.commit()
+                self.session.delete(obj)
+                self.session.commit()
                 return True
             except SQLAlchemyError as e:
-                db.session.rollback()
+                self.session.rollback()
                 raise
         return False
 
     def get_by_attribute(self, attr_name, attr_value):
-        return self.model_class.query.filter_by(**{attr_name: attr_value}).first()
-
-    def get_by_attribute(self, attr_name, attr_value):
-        return self.session.query(self.model_class).filter(
-            getattr(self.model_class, attr_name) == attr_value
-        ).first()
+        return self.session.query(self.model_class).filter(getattr(self.model_class, attr_name) == attr_value).first()

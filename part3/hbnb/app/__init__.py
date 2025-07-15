@@ -9,8 +9,23 @@ db = SQLAlchemy()
 
 from app.api.v1 import api_bp
 
-def create_app(config_class="config.DevelopmentConfig"):
+def create_app(config_name="development"):
+    """
+    Crée l'application Flask avec la configuration spécifiée.
+    
+    Args:
+        config_name (str): Nom de la configuration ('development', 'testing', 'production')
+    """
     app = Flask(__name__)
+    
+    # Convertir le nom en chemin de classe de configuration
+    config_map = {
+        'development': 'config.DevelopmentConfig',
+        'testing': 'config.TestingConfig',
+        'production': 'config.ProductionConfig'
+    }
+    
+    config_class = config_map.get(config_name.lower(), 'config.DevelopmentConfig')
     app.config.from_object(config_class)
 
     # JWT settings

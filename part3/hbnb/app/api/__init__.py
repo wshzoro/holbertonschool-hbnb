@@ -43,6 +43,10 @@ def configure_jwt(jwt_manager: JWTManager):
 
     @jwt_manager.additional_claims_loader
     def add_claims_to_access_token(identity):
-        user = facade.get_user(identity)
-        return {'is_admin': user.is_admin if user else False}
+        try:
+            user_id = int(identity)  # Convertir l'identité en entier
+            user = facade.get_user(user_id)
+            return {'is_admin': user.is_admin if user else False}
+        except (ValueError, TypeError):
+            return {'is_admin': False}
 
