@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Review</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header containing the logo and login/home button -->
+    <!-- Required by the specification -->
+    <header>
+        <img src="logo.png" alt="Logo" class="logo">
+        <a href="index.html" class="login-button">Home</a>
+    </header>
+
+    <!-- Navigation bar to help users access other pages -->
+    <nav>
+        <ul>
+            <li><a href="index.html">Places</a></li>
+            <li><a href="login.html">Login</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <!-- Identify the place being reviewed (static or dynamic name) -->
+        <section>
+            <h1>Review for: <span class="place-name">Beautiful Beach House</span></h1>
+        </section>
+
+        <form id="review-form" class="add-review form">
+            <h2>Add a Review</h2>
+
+            <label for="review">Your Review:</label>
+            <textarea id="review" name="review" required></textarea>
+
+            <label for="rating">Rating:</label>
+            <select id="rating" name="rating" required>
+                <!-- Options for rating from 1 to 5 -->
+                <option value="">Select rating</option>
+                <option value="1">1 - Very bad</option>
+                <option value="2">2 - Bad</option>
+                <option value="3">3 - Okay</option>
+                <option value="4">4 - Good</option>
+                <option value="5">5 - Excellent</option>
+            </select>
+
+            <button type="submit">Submit Review</button>
+        </form>
+    </main>
+
+    <!-- Footer containing rights information -->
+    <footer>
+        <p>© 2025 All rights reserved.</p>
+    </footer>
+
+    <script src="scripts.js"></script>
+</body>
+</html>
