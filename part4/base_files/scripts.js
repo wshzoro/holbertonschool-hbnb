@@ -72,7 +72,13 @@ function initPlacePage() {
   const reviewsSection = document.getElementById('reviews');
   const addReviewSection = document.getElementById('add-review');
 
-  const placeId = new URLSearchParams(window.location.search).get('id') || 1;
+  const placeId = new URLSearchParams(window.location.search).get('id');
+  if (!placeId) {
+    placeDetailsSection.innerHTML = 'Place ID not found in URL.';
+    return;
+  }
+
+  // Exemple statique
   const place = {
     id: placeId,
     name: 'Cozy Apartment',
@@ -88,11 +94,6 @@ function initPlacePage() {
   ];
 
   placeDetailsSection.className = 'place-details place-info';
-  placeDetailsSection.style.margin = '20px';
-  placeDetailsSection.style.padding = '10px';
-  placeDetailsSection.style.border = '1px solid #ddd';
-  placeDetailsSection.style.borderRadius = '10px';
-
   placeDetailsSection.innerHTML = `
     <h2>${place.name}</h2>
     <p><strong>Host:</strong> ${place.host}</p>
@@ -105,55 +106,73 @@ function initPlacePage() {
   reviews.forEach(review => {
     const card = document.createElement('div');
     card.className = 'review-card';
-    card.style.margin = '20px';
-    card.style.padding = '10px';
-    card.style.border = '1px solid #ddd';
-    card.style.borderRadius = '10px';
-
     card.innerHTML = `
       <p><strong>${review.user}:</strong> ${review.comment}</p>
       <p>Rating: ${review.rating} / 5</p>
     `;
-
     reviewsSection.appendChild(card);
   });
 
-  const loggedIn = Boolean(localStorage.getItem('userLoggedIn'));
-
-  if (loggedIn) {
+  const token = getCookie('token');
+  if (token) {
     addReviewSection.style.display = 'block';
   } else {
     addReviewSection.style.display = 'none';
   }
-
-  const reviewForm = document.getElementById('review-form');
-  if (reviewForm) {
-    reviewForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      alert('Review submitted! (functionality to be implemented)');
-      reviewForm.reset();
-    });
-  }
 }
 
 function initAddReviewPage() {
-  const placeId = new URLSearchParams(window.location.search).get('id');
-  const loggedIn = Boolean(localStorage.getItem('userLoggedIn'));
-
-  if (!loggedIn) {
-    alert('You must be logged in to add a review.');
+  const token = getCookie('token');
+  if (!token) {
+    alert('You must be logged in to submit a review.');
     window.location.href = 'login.html';
     return;
   }
 
-  const reviewForm = document.getElementById('review-form');
-  if (reviewForm) {
-    reviewForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      alert('Review submitted for place id: ' + placeId);
-      reviewForm.reset();
-    });
+  const placeId = getPlaceIdFromURL();
+  if (!placeId) {
+    alert('Place ID not found in URL.');
+    return;
   }
+
+  const reviewForm = document.getElementById('review-form');
+  if (!reviewForm) return;
+
+  reviewForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const reviewText = document.getElementById('review').value.trim();
+    const rating = document.getElementById('rating').value;
+
+    if (!reviewText || !rating) {
+      alert('Please fill in both review and rating.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:8000/api/v1/places/${placeId}/reviews`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          text: reviewText,
+          rating: parseInt(rating)
+        })
+      });
+
+      if (response.ok) {
+        alert('Review submitted successfully!');
+        window.location.href = `place.html?id=${placeId}`;
+      } else {
+        const error = await response.json();
+        alert(`Failed to submit review: ${error.message || 'Unknown error'}`);
+      }
+    } catch (error) {
+      alert(`An error occurred: ${error.message}`);
+    }
+  });
 }
 
 function initLoginPage() {
@@ -171,7 +190,7 @@ function initLoginPage() {
       }
 
       try {
-        const response = await fetch('http://localhost:5000/api/v1/login', {
+        const response = await fetch('http://localhost:8000/api/v1/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })
@@ -180,7 +199,6 @@ function initLoginPage() {
         if (response.ok) {
           const data = await response.json();
           document.cookie = `token=${data.access_token}; path=/`;
-          localStorage.setItem('userLoggedIn', 'true');
           alert('Login successful!');
           window.location.href = 'index.html';
         } else {
@@ -192,4 +210,15 @@ function initLoginPage() {
       }
     });
   }
+}
+
+// Helpers
+function getPlaceIdFromURL() {
+  return new URLSearchParams(window.location.search).get('id');
+}
+
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
 }

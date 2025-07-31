@@ -23,29 +23,44 @@
 
     <main>
         <!-- Section with place information -->
-        <section class="place-details">
-            <div class="place-info">
-                <h2>Charming Apartment</h2>
-                <p><strong>Host:</strong> Jane Doe</p>
-                <p><strong>Price per night:</strong> $150</p>
-                <p><strong>Description:</strong> A lovely apartment in the heart of the city.</p>
-                <p><strong>Amenities:</strong> Wi-Fi, Air Conditioning, Kitchen</p>
-            </div>
+        <section class="place-details" id="place-details">
+            <!-- Place details will be dynamically inserted here -->
         </section>
 
         <!-- Section with existing reviews -->
         <section id="reviews">
             <h3>Reviews</h3>
-
-            <!-- Example of a review card -->
-            <div class="review-card">
-                <p>"Great location and very clean!"</p>
-                <p><strong>User:</strong> Alex</p>
-                <p><strong>Rating:</strong> 5/5</p>
-            </div>
-
-            <!-- Additional review cards would be added dynamically -->
+            <!-- Reviews will be added here dynamically -->
         </section>
 
         <!-- Section for adding a review (visible if user is logged in) -->
         <section id="add-review">
+            <h3>Add a Review</h3>
+            <form id="review-form">
+                <label for="review-text">Your Review:</label>
+                <textarea id="review-text" required></textarea>
+
+                <label for="review-rating">Rating:</label>
+                <select id="review-rating" required>
+                    <option value="">--Select--</option>
+                    <option value="1">1/5</option>
+                    <option value="2">2/5</option>
+                    <option value="3">3/5</option>
+                    <option value="4">4/5</option>
+                    <option value="5">5/5</option>
+                </select>
+
+                <button type="submit">Submit</button>
+            </form>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2025 All rights reserved.</p>
+    </footer>
+
+    <!-- JS script -->
+    <script src="place.js"></script>
+</body>
+</html>
